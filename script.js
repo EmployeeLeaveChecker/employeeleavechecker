@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingIndicator = document.getElementById('loadingIndicator');
 
     // Replace with your Cloudflare Worker URL
-    const CLOUDFLARE_WORKER_URL = 'broad-glade-b132.employeeleaveremainingcsv.workers.dev';
+    const CLOUDFLARE_WORKER_URL = 'https://broad-glade-b132.employeeleaveremainingcsv.workers.dev/';
 
     searchButton.addEventListener('click', performSearch);
     searchInput.addEventListener('keypress', (e) => {
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             clearTimeout(timeoutId);
             
-            // Always try to get the response text, even if status is not 200
+            // Always try to get the response text
             const responseText = await response.text();
             
             // Try to parse as JSON
@@ -47,12 +47,14 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 data = JSON.parse(responseText);
             } catch (parseError) {
-                throw new Error(`Failed to parse response: ${responseText}`);
+                // If parsing fails, display the raw response
+                resultsContainer.innerHTML = `<div class="error-message">Invalid response format: ${parseError.message}</div>`;
+                return;
             }
 
             // Check if we got an error from the worker
             if (data.error) {
-                resultsContainer.innerHTML = `<div class="error-message">${data.error}</div>`;
+                resultsContainer.innerHTML = `<div class="error-message">${data.error}${data.details ? ': ' + data.details : ''}</div>`;
                 return;
             }
 
