@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingIndicator = document.getElementById('loadingIndicator');
 
     // Replace with your deployed Google Apps Script Web App URL
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbw1b_LBAvf1e3CHCMunR791ja4bKhbxVyQe3ns2t2FlKIH8FzuDmjm2oRpTVY3Hg4lTqA/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbx5n09z9Qch526Qfbxdgz__8Y-KPiZmohdyHU62KFW0GQTzCez4Mu0kREe9YDGlfhKeMg/exec';
 
     searchButton.addEventListener('click', performSearch);
     searchInput.addEventListener('keypress', (e) => {
