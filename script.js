@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingIndicator = document.getElementById('loadingIndicator');
 
     // Replace with your deployed Google Apps Script Web App URL
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbw0a86U2qWGElITx2fawTegzgB0HgklKUl1EhI8GPzCRhDFi1rFkSNvxaiRGUVGfCFHPQ/exec';
+    const GAS_URL = 'YOUR_GAS_WEB_APP_URL';
 
     searchButton.addEventListener('click', performSearch);
     searchInput.addEventListener('keypress', (e) => {
@@ -24,10 +24,23 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoading();
 
         try {
-            const response = await fetch(`${GAS_URL}?search=${encodeURIComponent(searchTerm)}`);
+            // Add timeout to prevent hanging requests
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
+            
+            const response = await fetch(`${GAS_URL}?search=${encodeURIComponent(searchTerm)}`, {
+                signal: controller.signal,
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            clearTimeout(timeoutId);
             
             if (!response.ok) {
-                throw new Error(`Server error: ${response.status}`);
+                throw new Error(`Server error: ${response.status} - ${response.statusText}`);
             }
 
             const data = await response.json();
@@ -41,7 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error:', error);
-            resultsContainer.innerHTML = `<div class="error-message">An error occurred while searching: ${error.message}</div>`;
+            if (error.name === 'AbortError') {
+                resultsContainer.innerHTML = `<div class="error-message">Request timed out. Please try again.</div>`;
+            } else if (error.message.includes('Failed to fetch')) {
+                resultsContainer.innerHTML = `<div class="error-message">Connection failed. Please check if your Google Apps Script is properly deployed and accessible.</div>`;
+            } else {
+                resultsContainer.innerHTML = `<div class="error-message">An error occurred while searching: ${error.message}</div>`;
+            }
         } finally {
             hideLoading();
         }
