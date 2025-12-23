@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsContainer = document.getElementById('resultsContainer');
     const loadingIndicator = document.getElementById('loadingIndicator');
 
-    // Replace with your deployed Google Apps Script Web App URL
-    const GAS_URL = 'https://broad-glade-b132.employeeleaveremainingcsv.workers.dev/';
+    // Replace with your Cloudflare Worker URL
+    const CLOUDFLARE_WORKER_URL = 'broad-glade-b132.employeeleaveremainingcsv.workers.dev';
 
     searchButton.addEventListener('click', performSearch);
     searchInput.addEventListener('keypress', (e) => {
@@ -26,9 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Add timeout to prevent hanging requests
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
             
-            const response = await fetch(`${GAS_URL}?search=${encodeURIComponent(searchTerm)}`, {
+            const response = await fetch(`${CLOUDFLARE_WORKER_URL}?search=${encodeURIComponent(searchTerm)}`, {
                 signal: controller.signal,
                 method: 'GET',
                 headers: {
@@ -39,15 +39,25 @@ document.addEventListener('DOMContentLoaded', () => {
             
             clearTimeout(timeoutId);
             
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+            // Always try to get the response text, even if status is not 200
+            const responseText = await response.text();
+            
+            // Try to parse as JSON
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                throw new Error(`Failed to parse response: ${responseText}`);
             }
 
-            const data = await response.json();
-
+            // Check if we got an error from the worker
             if (data.error) {
                 resultsContainer.innerHTML = `<div class="error-message">${data.error}</div>`;
-            } else if (Array.isArray(data) && data.length > 0) {
+                return;
+            }
+
+            // Process successful response
+            if (Array.isArray(data) && data.length > 0) {
                 displayResults(data);
             } else {
                 resultsContainer.innerHTML = '<div class="no-results">No employees found.</div>';
@@ -56,8 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error:', error);
             if (error.name === 'AbortError') {
                 resultsContainer.innerHTML = `<div class="error-message">Request timed out. Please try again.</div>`;
-            } else if (error.message.includes('Failed to fetch')) {
-                resultsContainer.innerHTML = `<div class="error-message">Connection failed. Please check if your Google Apps Script is properly deployed and accessible.</div>`;
             } else {
                 resultsContainer.innerHTML = `<div class="error-message">An error occurred while searching: ${error.message}</div>`;
             }
