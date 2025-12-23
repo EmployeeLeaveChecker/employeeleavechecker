@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingIndicator = document.getElementById('loadingIndicator');
 
     // Replace with your deployed Google Apps Script Web App URL
-    const GAS_URL = 'YOUR_GAS_WEB_APP_URL';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbw1b_LBAvf1e3CHCMunR791ja4bKhbxVyQe3ns2t2FlKIH8FzuDmjm2oRpTVY3Hg4lTqA/exec';
 
     searchButton.addEventListener('click', performSearch);
     searchInput.addEventListener('keypress', (e) => {
