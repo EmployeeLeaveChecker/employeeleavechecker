@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const emp of employees) {
             html += `
                 <div class="employee-card">
-                    <div class="employee-header">${emp.Surname}, ${emp['Employee Number']}</div>
+                    <div class="employee-header">${emp.Surname}, ${emp['Employee Number']} (${emp.Company})</div>
                     <div class="leave-details">
                         <div class="leave-item">
                             <span class="leave-label">Total Annual Leave</span>
