@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsContainer = document.getElementById('resultsContainer');
     const loadingIndicator = document.getElementById('loadingIndicator');
 
-    // Replace with your Cloudflare Worker URL
+    // Replace with your Cloudflare Worker URL (no trailing spaces!)
     const CLOUDFLARE_WORKER_URL = 'https://broad-glade-b132.employeeleaveremainingcsv.workers.dev/';
 
     searchButton.addEventListener('click', performSearch);
